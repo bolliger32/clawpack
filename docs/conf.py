@@ -25,29 +25,28 @@ import os
 # Get the project root dir, which is the parent dir of this
 cwd = os.getcwd()
 project_roots = [
-    os.path.join(os.path.dirname(cwd), pkg, 'src/python/')
-    for pkg in [
-        'amrclaw',
-        'classic',
-        'clawpack',
-        'clawutil',
-        'geoclaw',
-        'pyclaw',
-        'riemann',
-        'visclaw']]
+    os.path.abspath('../amrclaw/src/python'),
+    os.path.abspath('../classic/src/python'),
+    os.path.abspath('../'),
+    os.path.abspath('../clawutil/src/python'),
+    os.path.abspath('../geoclaw/src/python'),
+    os.path.abspath('../pyclaw/src/pyclaw'),
+    os.path.abspath('../riemann/riemann'),
+    os.path.abspath('../visclaw/src/python')]
 
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
 # version is used.
 sys.path = project_roots + sys.path
 
-import amrclaw
+import clawpack
+import pyclaw
 import classic
+import amrclaw
+import riemann
 import clawutil
-import geoclaw
-# import pyclaw
-# import riemann
 import visclaw
+import geoclaw
 
 # -- General configuration ---------------------------------------------
 

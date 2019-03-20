@@ -1,11 +1,13 @@
-geoclaw
-=======
+Clawpack API
+============
 
 .. toctree::
-   :maxdepth: 4
+    :maxdepth: 4
 
-   amrclaw/modules
-   classic/modules
-   clawutil/modules
-   geoclaw/modules
-   visclaw/modules
+    amrclaw/amrclaw
+    classic/classic
+    clawutil/clawutil
+    geoclaw/geoclaw
+    visclaw/visclaw
+    riemann/riemann
+    pyclaw/pyclaw
