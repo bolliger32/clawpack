@@ -1,0 +1,246 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>visclaw.JSAnimation package &#8212; ClawPack 4.5 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="visclaw package" href="visclaw.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="visclaw.html" title="visclaw package"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../modules.html" >geoclaw</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >python</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="visclaw.html" accesskey="U">visclaw package</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="visclaw-jsanimation-package">
+<h1>visclaw.JSAnimation package<a class="headerlink" href="#visclaw-jsanimation-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-visclaw.JSAnimation.IPython_display">
+<span id="visclaw-jsanimation-ipython-display-module"></span><h2>visclaw.JSAnimation.IPython_display module<a class="headerlink" href="#module-visclaw.JSAnimation.IPython_display" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="visclaw.JSAnimation.IPython_display.anim_to_html">
+<code class="descclassname">visclaw.JSAnimation.IPython_display.</code><code class="descname">anim_to_html</code><span class="sig-paren">(</span><em>anim</em>, <em>fps=None</em>, <em>embed_frames=True</em>, <em>default_mode='loop'</em>, <em>show_buttons=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/IPython_display.html#anim_to_html"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.IPython_display.anim_to_html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate HTML representation of the animation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="visclaw.JSAnimation.IPython_display.display_animation">
+<code class="descclassname">visclaw.JSAnimation.IPython_display.</code><code class="descname">display_animation</code><span class="sig-paren">(</span><em>anim</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/IPython_display.html#display_animation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.IPython_display.display_animation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the animation with an IPython HTML object</p>
+</dd></dl>
+
+</div>
+<div class="section" id="visclaw-jsanimation-jsanimation-frametools-module">
+<h2>visclaw.JSAnimation.JSAnimation_frametools module<a class="headerlink" href="#visclaw-jsanimation-jsanimation-frametools-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="visclaw-jsanimation-examples-module">
+<h2>visclaw.JSAnimation.examples module<a class="headerlink" href="#visclaw-jsanimation-examples-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-visclaw.JSAnimation.fix_jsmovies">
+<span id="visclaw-jsanimation-fix-jsmovies-module"></span><h2>visclaw.JSAnimation.fix_jsmovies module<a class="headerlink" href="#module-visclaw.JSAnimation.fix_jsmovies" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>JSAnimation sometimes puts a space between anim and the hash code in lines such as</dt>
+<dd>onclick=”anim6c16c71bbda280b…</dd>
+</dl>
+<p>The webpage then shows a broken link.</p>
+<p>fix_file function below fixes a single file.
+fix_movie fixes a file produced by Clawpack plotting routines.
+fix_movies fixes all movie files in a specified plotdir.</p>
+<p>Default if run from command line is to fix all movies in _plots.
+Can specify plotdir and optionally figno for movie on the command line.</p>
+<p>It would be better to figure out the bug in JSAnimation.html_writer.</p>
+<dl class="function">
+<dt id="visclaw.JSAnimation.fix_jsmovies.fix_file">
+<code class="descclassname">visclaw.JSAnimation.fix_jsmovies.</code><code class="descname">fix_file</code><span class="sig-paren">(</span><em>fname</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/fix_jsmovies.html#fix_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.fix_jsmovies.fix_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visclaw.JSAnimation.fix_jsmovies.fix_movie">
+<code class="descclassname">visclaw.JSAnimation.fix_jsmovies.</code><code class="descname">fix_movie</code><span class="sig-paren">(</span><em>plotdir</em>, <em>figno</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/fix_jsmovies.html#fix_movie"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.fix_jsmovies.fix_movie" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="visclaw.JSAnimation.fix_jsmovies.fix_movies">
+<code class="descclassname">visclaw.JSAnimation.fix_jsmovies.</code><code class="descname">fix_movies</code><span class="sig-paren">(</span><em>plotdir='_plots'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/fix_jsmovies.html#fix_movies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.fix_jsmovies.fix_movies" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-visclaw.JSAnimation.html_writer">
+<span id="visclaw-jsanimation-html-writer-module"></span><h2>visclaw.JSAnimation.html_writer module<a class="headerlink" href="#module-visclaw.JSAnimation.html_writer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter">
+<em class="property">class </em><code class="descclassname">visclaw.JSAnimation.html_writer.</code><code class="descname">HTMLWriter</code><span class="sig-paren">(</span><em>fps=30</em>, <em>codec=None</em>, <em>bitrate=None</em>, <em>extra_args=None</em>, <em>metadata=None</em>, <em>embed_frames=False</em>, <em>frame_dir=None</em>, <em>add_html=''</em>, <em>frame_width=None</em>, <em>default_mode='loop'</em>, <em>show_buttons=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/html_writer.html#HTMLWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.animation.FileMovieWriter</span></code></p>
+<dl class="attribute">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.args_key">
+<code class="descname">args_key</code><em class="property"> = 'animation.ffmpeg_args'</em><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.args_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.exec_key">
+<code class="descname">exec_key</code><em class="property"> = 'animation.ffmpeg_path'</em><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.exec_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.get_all_framenames">
+<code class="descname">get_all_framenames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/html_writer.html#HTMLWriter.get_all_framenames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.get_all_framenames" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.grab_frame">
+<code class="descname">grab_frame</code><span class="sig-paren">(</span><em>**savefig_kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/html_writer.html#HTMLWriter.grab_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.grab_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grab the image information from the figure and save as a movie frame.
+All keyword arguments in savefig_kwargs are passed on to the <cite>savefig</cite>
+command that saves the figure.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.new_id">
+<em class="property">classmethod </em><code class="descname">new_id</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/html_writer.html#HTMLWriter.new_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.new_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.rng">
+<code class="descname">rng</code><em class="property"> = &lt;random.Random object&gt;</em><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.rng" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.setup">
+<code class="descname">setup</code><span class="sig-paren">(</span><em>fig</em>, <em>outfile</em>, <em>dpi</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/visclaw/JSAnimation/html_writer.html#HTMLWriter.setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform setup for writing the movie file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – The figure to grab the rendered frames from.</li>
+<li><strong>outfile</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) – The filename of the resulting movie file.</li>
+<li><strong>dpi</strong> (<em>number</em><em>, </em><em>optional</em>) – The dpi of the output file. This, with the figure size,
+controls the size in pixels of the resulting movie file.
+Default is fig.dpi.</li>
+<li><strong>frame_prefix</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a><em>, </em><em>optional</em>) – The filename prefix to use for temporary files.  Defaults to
+<code class="docutils literal notranslate"><span class="pre">'_tmp'</span></code>.</li>
+<li><strong>clear_temp</strong> (<a class="reference external" href="https://docs.python.org/2.7/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a><em>, </em><em>optional</em>) – If the temporary files should be deleted after stitching
+the final result.  Setting this to <code class="docutils literal notranslate"><span class="pre">False</span></code> can be useful for
+debugging.  Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="visclaw.JSAnimation.html_writer.HTMLWriter.supported_formats">
+<code class="descname">supported_formats</code><em class="property"> = ['png', 'jpeg', 'tiff', 'svg']</em><a class="headerlink" href="#visclaw.JSAnimation.html_writer.HTMLWriter.supported_formats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-visclaw.JSAnimation">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-visclaw.JSAnimation" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">visclaw.JSAnimation package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-visclaw.JSAnimation.IPython_display">visclaw.JSAnimation.IPython_display module</a></li>
+<li><a class="reference internal" href="#visclaw-jsanimation-jsanimation-frametools-module">visclaw.JSAnimation.JSAnimation_frametools module</a></li>
+<li><a class="reference internal" href="#visclaw-jsanimation-examples-module">visclaw.JSAnimation.examples module</a></li>
+<li><a class="reference internal" href="#module-visclaw.JSAnimation.fix_jsmovies">visclaw.JSAnimation.fix_jsmovies module</a></li>
+<li><a class="reference internal" href="#module-visclaw.JSAnimation.html_writer">visclaw.JSAnimation.html_writer module</a></li>
+<li><a class="reference internal" href="#module-visclaw.JSAnimation">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="visclaw.html"
+                        title="previous chapter">visclaw package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/visclaw/visclaw.JSAnimation.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="visclaw.html" title="visclaw package"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../modules.html" >geoclaw</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >python</a> &#187;</li>
+          <li class="nav-item nav-item-3"><a href="visclaw.html" >visclaw package</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,898 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>geoclaw.kmltools &#8212; ClawPack 4.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for geoclaw.kmltools</h1><div class="highlight"><pre>
+<span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">kmltools module: $CLAW/geoclaw/src/python/geoclaw/kmltools.py</span>
+
+<span class="sd">Tools to make kml files to overlay on Google Earth.</span>
+<span class="sd">Note that color is in KML format, BGR with 2 hex digits for each, e.g.</span>
+
+<span class="sd">  FF0000 is blue, 00FF00 is green,  0000FF is red, 00FF00 is yellow.</span>
+
+<span class="sd">Actually it&#39;s an 8 hex digit number, where the first two digits are</span>
+<span class="sd">transparency, but in this module these default to &#39;FF&#39; (but you can specify</span>
+<span class="sd">the full 8 digits if you want it transparent).</span>
+
+<span class="sd">:Functions:</span>
+<span class="sd"> - deg2dms - convert decimal degrees to (degrees, minutes, seconds)</span>
+<span class="sd"> - regions2kml - create a kml outline for each regions specified in setrun</span>
+<span class="sd"> - box2kml - create a kml outline from a rectangular box</span>
+<span class="sd"> - quad2kml - create a kml outline for an arbitrary quadrilateral</span>
+<span class="sd"> - poly2kml - create a kml outline for an arbitrary polygon</span>
+<span class="sd"> - line2kml - create a kml line connecting 2 points</span>
+<span class="sd"> - gauges2kml - create a kml marker for each gauge specified in setrun</span>
+<span class="sd"> - kml_header - used internally</span>
+<span class="sd"> - kml_footer - used internally</span>
+<span class="sd"> - kml_region - used internally</span>
+<span class="sd"> - kml_gauge - used internally</span>
+
+<span class="sd"> - strip_archive_extensions - strip off things like .tar or .gz</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="k">import</span> <span class="nb">range</span>
+
+<div class="viewcode-block" id="f2s"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.f2s">[docs]</a><span class="k">def</span> <span class="nf">f2s</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">num_digits</span><span class="o">=</span><span class="mi">6</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert float to string in fixed point notation with at most</span>
+<span class="sd">    *num_digits* digits of precision and trailing zeros removed, </span>
+<span class="sd">    for printing nicely in kml description boxes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;%&#39;</span> <span class="o">+</span> <span class="s1">&#39;.</span><span class="si">%s</span><span class="s1">f&#39;</span> <span class="o">%</span> <span class="n">num_digits</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">(</span><span class="nb">format</span> <span class="o">%</span> <span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span></div>
+    
+<div class="viewcode-block" id="deg2dms"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.deg2dms">[docs]</a><span class="k">def</span> <span class="nf">deg2dms</span><span class="p">(</span><span class="n">dy</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert decimal degrees to tuple (degrees, minutes, seconds)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">floor</span>
+    <span class="n">dy_deg</span> <span class="o">=</span> <span class="n">floor</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+    <span class="n">dy_min</span> <span class="o">=</span> <span class="n">floor</span><span class="p">((</span><span class="n">dy</span><span class="o">-</span><span class="n">dy_deg</span><span class="p">)</span><span class="o">*</span><span class="mf">60.</span><span class="p">)</span>
+    <span class="n">dy_sec</span> <span class="o">=</span> <span class="p">(</span><span class="n">dy</span><span class="o">-</span><span class="n">dy_deg</span><span class="o">-</span><span class="n">dy_min</span><span class="o">/</span><span class="mf">60.</span><span class="p">)</span><span class="o">*</span><span class="mf">3600.</span>
+    <span class="k">return</span> <span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span></div>
+
+
+<div class="viewcode-block" id="regions2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.regions2kml">[docs]</a><span class="k">def</span> <span class="nf">regions2kml</span><span class="p">(</span><span class="n">rundata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">fname</span><span class="o">=</span><span class="s1">&#39;regions.kml&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a KML box for each AMR region specified for a GeoClaw run.</span>
+
+<span class="sd">    :Inputs:</span>
+
+<span class="sd">      - *rundata* - an object of class *ClawRunData* or None</span>
+
+<span class="sd">        If *rundata==None*, try to create based on executing function *setrun*</span>
+<span class="sd">        from the `setrun.py` file in the current directory.</span>
+
+<span class="sd">      - *fname* (str) - resulting kml file.</span>
+
+<span class="sd">      - *verbose* (bool) - If *True*, print out info about each region found</span>
+
+<span class="sd">      - *combined* (bool) - If *True*, combine into single kml file with</span>
+<span class="sd">        name given by *fname*.  This is the default. </span>
+<span class="sd">        If False, *fname* is ignored and individual files are created for</span>
+<span class="sd">        each region with names are Domain.kml, Region00.kml, etc.</span>
+<span class="sd">        These will show up separately in GoogleEarth so they can be turned</span>
+<span class="sd">        on or off individually.</span>
+
+<span class="sd">    First create a box for the entire domain (in red) and then a box</span>
+<span class="sd">    for each region (in white).</span>
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from clawpack.geoclaw import kmltools</span>
+<span class="sd">        &gt;&gt;&gt; kmltools.regions2kml()</span>
+
+<span class="sd">    is equivalent to:</span>
+
+<span class="sd">        &gt;&gt;&gt; from clawpack.geoclaw import kmltools</span>
+<span class="sd">        &gt;&gt;&gt; from setrun import setrun</span>
+<span class="sd">        &gt;&gt;&gt; rundata = setrun()</span>
+<span class="sd">        &gt;&gt;&gt; kmltools.regions2kml(rundata)</span>
+
+<span class="sd">    By default this creates a file named *regions.kml* that can be opened in</span>
+<span class="sd">    Google Earth.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">cos</span><span class="p">,</span><span class="n">pi</span><span class="p">,</span><span class="n">floor</span>
+
+    <span class="k">if</span> <span class="n">rundata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">setrun</span>
+            <span class="n">reload</span><span class="p">(</span><span class="n">setrun</span><span class="p">)</span>
+            <span class="n">rundata</span> <span class="o">=</span> <span class="n">setrun</span><span class="o">.</span><span class="n">setrun</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;*** cannot execute setrun file&quot;</span><span class="p">)</span>
+
+    <span class="n">clawdata</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">clawdata</span>
+    <span class="n">x1</span><span class="p">,</span><span class="n">y1</span> <span class="o">=</span> <span class="n">clawdata</span><span class="o">.</span><span class="n">lower</span><span class="p">[</span><span class="mi">0</span><span class="p">:]</span>
+    <span class="n">x2</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">clawdata</span><span class="o">.</span><span class="n">upper</span><span class="p">[</span><span class="mi">0</span><span class="p">:]</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;  x1 = </span><span class="si">%s</span><span class="s2">, x2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">x2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  y1 = </span><span class="si">%s</span><span class="s2">, y2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y2</span><span class="p">))</span>
+
+    <span class="n">mx</span><span class="p">,</span><span class="n">my</span> <span class="o">=</span> <span class="n">clawdata</span><span class="o">.</span><span class="n">num_cells</span><span class="p">[</span><span class="mi">0</span><span class="p">:]</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">x2</span><span class="o">-</span><span class="n">x1</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">mx</span><span class="p">)</span>
+    <span class="n">dx_meters</span> <span class="o">=</span> <span class="n">dx</span><span class="o">*</span><span class="mf">111e3</span><span class="o">*</span><span class="n">cos</span><span class="p">(</span><span class="n">pi</span><span class="o">*</span><span class="mf">0.5</span><span class="o">*</span><span class="p">(</span><span class="n">y1</span><span class="o">+</span><span class="n">y2</span><span class="p">)</span><span class="o">/</span><span class="mf">180.</span><span class="p">)</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">y2</span><span class="o">-</span><span class="n">y1</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">my</span><span class="p">)</span>
+    <span class="n">dy_meters</span> <span class="o">=</span> <span class="n">dy</span><span class="o">*</span><span class="mf">111e3</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Domain:   </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">))</span>
+    <span class="n">dx_deg</span><span class="p">,</span><span class="n">dx_min</span><span class="p">,</span><span class="n">dx_sec</span> <span class="o">=</span> <span class="n">deg2dms</span><span class="p">(</span><span class="n">dx</span><span class="p">)</span>
+    <span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span> <span class="o">=</span> <span class="n">deg2dms</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+    <span class="c1">#print &quot;Level 1 resolution:  dx = %g deg, %g min, %g sec = %g meters&quot; \</span>
+    <span class="c1">#   % (dx_deg,dx_min,dx_sec,dx_meters)</span>
+    <span class="n">levtext</span> <span class="o">=</span> <span class="s2">&quot;Level 1 resolution:  dy = </span><span class="si">%g</span><span class="s2"> deg, </span><span class="si">%g</span><span class="s2"> min, </span><span class="si">%g</span><span class="s2"> sec = </span><span class="si">%g</span><span class="s2"> meters</span><span class="se">\n</span><span class="s2">&quot;</span> \
+        <span class="o">%</span> <span class="p">(</span><span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span><span class="p">,</span><span class="n">dy_meters</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">levtext</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="o">+</span> <span class="n">levtext</span>
+
+    <span class="n">amr_levels_max</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">amrdata</span><span class="o">.</span><span class="n">amr_levels_max</span>
+    <span class="n">refinement_ratios_y</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">amrdata</span><span class="o">.</span><span class="n">refinement_ratios_y</span>
+    <span class="n">num_ref_ratios</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">refinement_ratios_y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">amr_levels_max</span> <span class="o">&gt;</span> <span class="n">num_ref_ratios</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;*** Too few refinement ratios specified for &quot;</span> \
+            <span class="o">+</span> <span class="s2">&quot;amr_levels_max = </span><span class="si">%i</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">amr_levels_max</span><span class="p">)</span>
+    <span class="n">dy_levels</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_ref_ratios</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">[</span><span class="n">dy</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">refinement_ratios_y</span><span class="p">):</span>
+        <span class="n">level</span> <span class="o">=</span> <span class="n">k</span><span class="o">+</span><span class="mi">2</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">dy_levels</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">/</span> <span class="n">r</span>
+        <span class="n">dy_levels</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">dy</span>
+        <span class="n">dy_meters</span> <span class="o">=</span> <span class="n">dy</span><span class="o">*</span><span class="mf">111e3</span>
+        <span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span> <span class="o">=</span> <span class="n">deg2dms</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+        <span class="n">levtext</span> <span class="o">=</span> <span class="s2">&quot;Level </span><span class="si">%s</span><span class="s2"> resolution:  dy = </span><span class="si">%g</span><span class="s2"> deg, </span><span class="si">%g</span><span class="s2"> min, </span><span class="si">%g</span><span class="s2"> sec = </span><span class="si">%g</span><span class="s2"> meters  (refined by </span><span class="si">%i</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                <span class="o">%</span> <span class="p">(</span><span class="n">level</span><span class="p">,</span><span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span><span class="p">,</span><span class="n">dy_meters</span><span class="p">,</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">levtext</span><span class="p">)</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="o">+</span> <span class="n">levtext</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Allowing maximum of </span><span class="si">%i</span><span class="s2"> levels&quot;</span> <span class="o">%</span> <span class="n">amr_levels_max</span><span class="p">)</span>
+
+    <span class="n">elev</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">combined</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;Domain.kml&#39;</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Computational Domain&#39;</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;0000FF&quot;</span>  <span class="c1"># red</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+    <span class="n">region_text</span> <span class="o">=</span> <span class="n">kml_region</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">region_text</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">combined</span><span class="p">:</span>
+        <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+        <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+        <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span>
+
+            
+
+    <span class="n">regions</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">regiondata</span><span class="o">.</span><span class="n">regions</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No regions found in setrun.py&quot;</span><span class="p">)</span>
+
+
+    <span class="k">for</span> <span class="n">rnum</span><span class="p">,</span><span class="n">region</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">regions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">combined</span><span class="p">:</span>
+            <span class="n">fname</span> <span class="o">=</span> <span class="s1">&#39;Region_</span><span class="si">%s</span><span class="s1">.kml&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">rnum</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+        <span class="n">minlevel</span><span class="p">,</span><span class="n">maxlevel</span> <span class="o">=</span> <span class="n">region</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">t1</span><span class="p">,</span><span class="n">t2</span> <span class="o">=</span> <span class="n">region</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">region</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Region </span><span class="si">%i</span><span class="s2">: </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> \
+                    <span class="o">%</span> <span class="p">(</span><span class="n">rnum</span><span class="p">,</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;           minlevel = </span><span class="si">%i</span><span class="s2">,  maxlevel = </span><span class="si">%i</span><span class="s2">&quot;</span> \
+                    <span class="o">%</span> <span class="p">(</span><span class="n">minlevel</span><span class="p">,</span><span class="n">maxlevel</span><span class="p">)</span> \
+                    <span class="o">+</span> <span class="s2">&quot;  t1 = </span><span class="si">%s</span><span class="s2">,  t2 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">t2</span><span class="p">)))</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;minlevel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">minlevel</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;maxlevel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">maxlevel</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t1</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Region </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">rnum</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;minlevel = </span><span class="si">%i</span><span class="s2">, maxlevel = </span><span class="si">%i</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">minlevel</span><span class="p">,</span><span class="n">maxlevel</span><span class="p">)</span> \
+            <span class="o">+</span> <span class="s2">&quot;  t1 = </span><span class="si">%s</span><span class="s2">, t2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">t2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  x1 = </span><span class="si">%s</span><span class="s2">, x2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">x2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  y1 = </span><span class="si">%s</span><span class="s2">, y2 = </span><span class="si">%s</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y2</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dy_levels</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">minlevel</span><span class="p">:</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="n">dy_levels</span><span class="p">[</span><span class="n">minlevel</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span> <span class="o">=</span> <span class="n">deg2dms</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+            <span class="n">dy_meters</span> <span class="o">=</span> <span class="n">dy</span><span class="o">*</span><span class="mf">111e3</span>
+            <span class="n">levtext</span> <span class="o">=</span> <span class="s2">&quot;Level </span><span class="si">%s</span><span class="s2"> resolution:  </span><span class="se">\n</span><span class="s2">dy = </span><span class="si">%g</span><span class="s2"> deg, </span><span class="si">%g</span><span class="s2"> min, </span><span class="si">%g</span><span class="s2"> sec </span><span class="se">\n</span><span class="s2">= </span><span class="si">%g</span><span class="s2"> meters</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                    <span class="o">%</span> <span class="p">(</span><span class="n">minlevel</span><span class="p">,</span><span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span><span class="p">,</span><span class="n">dy_meters</span><span class="p">)</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="o">+</span> <span class="n">levtext</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">maxlevel</span> <span class="o">&gt;</span> <span class="n">minlevel</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dy_levels</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">maxlevel</span><span class="p">):</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="n">dy_levels</span><span class="p">[</span><span class="n">maxlevel</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span> <span class="o">=</span> <span class="n">deg2dms</span><span class="p">(</span><span class="n">dy</span><span class="p">)</span>
+            <span class="n">dy_meters</span> <span class="o">=</span> <span class="n">dy</span><span class="o">*</span><span class="mf">111e3</span>
+            <span class="n">levtext</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Level </span><span class="si">%s</span><span class="s2"> resolution:  </span><span class="se">\n</span><span class="s2">dy = </span><span class="si">%g</span><span class="s2"> deg, </span><span class="si">%g</span><span class="s2"> min, </span><span class="si">%g</span><span class="s2"> sec </span><span class="se">\n</span><span class="s2">= </span><span class="si">%g</span><span class="s2"> meters</span><span class="se">\n</span><span class="s2">&quot;</span> \
+                    <span class="o">%</span> <span class="p">(</span><span class="n">maxlevel</span><span class="p">,</span><span class="n">dy_deg</span><span class="p">,</span><span class="n">dy_min</span><span class="p">,</span><span class="n">dy_sec</span><span class="p">,</span><span class="n">dy_meters</span><span class="p">)</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">description</span> <span class="o">+</span> <span class="n">levtext</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;FFFFFF&quot;</span>  <span class="c1"># white</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="n">region_text</span> <span class="o">=</span> <span class="n">kml_region</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">region_text</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">combined</span><span class="p">:</span>
+            <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+            <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+            <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+            <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">combined</span><span class="p">:</span>
+        <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+        <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+        <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="line2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.line2kml">[docs]</a><span class="k">def</span> <span class="nf">line2kml</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span><span class="n">fname</span><span class="o">=</span><span class="s1">&#39;line.kml&#39;</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;00FFFF&#39;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a KML line with default color yellow.</span>
+
+<span class="sd">    :Inputs:</span>
+
+<span class="sd">     - *xy* a tuple ((x1,x2),(y1,y2)) (preferred) </span>
+<span class="sd">            or (x1,x2,y1,y2) (for backward compatibility)</span>
+<span class="sd">     - *fname* (str) name of resulting kml file</span>
+<span class="sd">     - *name* (str) name to appear on line on Google Earth</span>
+<span class="sd">     - *color* (str) Color in format aabbggrr</span>
+<span class="sd">     - *width* (str) line width</span>
+<span class="sd">     - *verbose* (bool) - If *True*, print out info</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+     
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">x2</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y1</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Line:   </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">))</span>
+
+    <span class="n">elev</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;  x1 = </span><span class="si">%s</span><span class="s2">, x2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">x2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  y1 = </span><span class="si">%s</span><span class="s2">, y2 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y2</span><span class="p">))</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+
+    <span class="n">region_text</span> <span class="o">=</span> <span class="n">kml_line</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">region_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+    <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="box2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.box2kml">[docs]</a><span class="k">def</span> <span class="nf">box2kml</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span><span class="n">fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;box&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;FF0000&#39;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a KML box with default color blue.</span>
+
+<span class="sd">    :Inputs:</span>
+
+<span class="sd">     - *xy* a tuple ((x1,x2),(y1,y2)) (preferred) </span>
+<span class="sd">            or (x1,x2,y1,y2) (for backward compatibility)</span>
+<span class="sd">     - *fname* (str) name of resulting kml file</span>
+<span class="sd">     - *name* (str) name to appear in box on Google Earth</span>
+<span class="sd">     - *color* (str) Color in format aabbggrr</span>
+<span class="sd">     - *width* (str) line width</span>
+<span class="sd">     - *verbose* (bool) - If *True*, print out info</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.kml&#39;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">x2</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y1</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Box:   </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">))</span>
+
+    <span class="n">elev</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;  x1 = </span><span class="si">%s</span><span class="s2">, x2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">x2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  y1 = </span><span class="si">%s</span><span class="s2">, y2 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y2</span><span class="p">))</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+
+    <span class="n">region_text</span> <span class="o">=</span> <span class="n">kml_region</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">region_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+    <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="quad2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.quad2kml">[docs]</a><span class="k">def</span> <span class="nf">quad2kml</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span><span class="n">fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;quad&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;FF0000&#39;</span><span class="p">,</span><span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a KML quadrilateral with default color blue.</span>
+
+<span class="sd">    :Inputs:</span>
+
+<span class="sd">     - *xy* a tuple ((x1,x2,x3,x4),(y1,y2,y3,y4)) (preferred) </span>
+<span class="sd">            or (x1,x2,y1,y2,x3,y3,x4,y4) (for backward compatibility)</span>
+<span class="sd">     - *fname* (str) name of resulting kml file</span>
+<span class="sd">     - *name* (str) name to appear in box on Google Earth</span>
+<span class="sd">     - *color* (str) Color in format aabbggrr</span>
+<span class="sd">     - *width* (str) line width</span>
+<span class="sd">     - *verbose* (bool) - If *True*, print out info</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.kml&#39;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">x3</span><span class="p">,</span><span class="n">x4</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">,</span><span class="n">y3</span><span class="p">,</span><span class="n">y4</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y2</span><span class="p">,</span><span class="n">x3</span><span class="p">,</span><span class="n">y3</span><span class="p">,</span><span class="n">x4</span><span class="p">,</span><span class="n">y4</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="mi">0</span><span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Quadrilateral:   </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">y1</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                 </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x2</span><span class="p">,</span><span class="n">y2</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                 </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x3</span><span class="p">,</span><span class="n">y3</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;                 </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x4</span><span class="p">,</span><span class="n">y4</span><span class="p">))</span>
+
+    <span class="n">elev</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x3</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x4&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x4</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y2</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y3</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y4&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y4</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;  x1 = </span><span class="si">%s</span><span class="s2">, y1 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  x2 = </span><span class="si">%s</span><span class="s2">, y2 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x2</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  x3 = </span><span class="si">%s</span><span class="s2">, y3 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x3</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y3</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  x4 = </span><span class="si">%s</span><span class="s2">, y4 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x4</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y4</span><span class="p">))</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+    <span class="n">region_text</span> <span class="o">=</span> <span class="n">kml_region</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">region_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+    <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="poly2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.poly2kml">[docs]</a><span class="k">def</span> <span class="nf">poly2kml</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span><span class="n">fname</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;poly&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;00FF00&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make a KML polygon with default color blue.</span>
+
+<span class="sd">    :Inputs:</span>
+
+<span class="sd">     - *xy* a tuple (x,y) where x and y are lists of vertices</span>
+<span class="sd">     - *fname* (str) name of resulting kml file</span>
+<span class="sd">     - *name* (str) name to appear in box on Google Earth</span>
+<span class="sd">     - *color* (str) Color in format aabbggrr</span>
+<span class="sd">     - *width* (str) line width</span>
+<span class="sd">     - *verbose* (bool) - If *True*, print out info</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">fname</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s1">&#39;.kml&#39;</span>
+
+    <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">xy</span>
+
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Polygon:     </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;             </span><span class="si">%10.6f</span><span class="s2">  </span><span class="si">%10.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">],</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+
+    <span class="n">elev</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="s2">&quot;  x[0] = </span><span class="si">%s</span><span class="s2">, y[0] = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> 
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;  x[</span><span class="si">%i</span><span class="s2">] = </span><span class="si">%s</span><span class="s2">, y[</span><span class="si">%i</span><span class="s2">] = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">f2s</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span><span class="n">j</span><span class="p">,</span><span class="n">f2s</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">width</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span><span class="n">f2s</span><span class="p">(</span><span class="n">elev</span><span class="p">))</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="s2">,</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="n">f2s</span><span class="p">(</span><span class="n">elev</span><span class="p">))</span>
+    <span class="n">v</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    
+    <span class="n">region_text</span> <span class="o">=</span> <span class="n">kml_region</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">d</span> <span class="o">+</span> <span class="s2">&quot;  x[</span><span class="si">%i</span><span class="s2">] = </span><span class="si">%s</span><span class="s2">, y[</span><span class="si">%i</span><span class="s2">] = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">j</span><span class="p">,</span><span class="n">f2s</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span><span class="p">]),</span><span class="n">j</span><span class="p">,</span><span class="n">f2s</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">region_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+    <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="gauges2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.gauges2kml">[docs]</a><span class="k">def</span> <span class="nf">gauges2kml</span><span class="p">(</span><span class="n">rundata</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fname</span><span class="o">=</span><span class="s1">&#39;gauges.kml&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Create a KML marker for each gauge specified for a GeoClaw run.</span>
+
+<span class="sd">    :Inputs:</span>
+
+<span class="sd">      - *rundata* - an object of class *ClawRunData* or None</span>
+
+<span class="sd">        If *rundata==None*, try to create based on executing function *setrun*</span>
+<span class="sd">        from the `setrun.py` file in the current directory.</span>
+
+<span class="sd">      - *fname* (str) - resulting kml file.</span>
+
+<span class="sd">      - *verbose* (bool) - If *True*, print out info about each region found</span>
+
+
+<span class="sd">    :Example:</span>
+
+<span class="sd">        &gt;&gt;&gt; from clawpack.geoclaw import kmltools</span>
+<span class="sd">        &gt;&gt;&gt; kmltools.gauges2kml()</span>
+
+<span class="sd">    is equivalent to:</span>
+
+<span class="sd">        &gt;&gt;&gt; from clawpack.geoclaw import kmltools</span>
+<span class="sd">        &gt;&gt;&gt; from setrun import setrun</span>
+<span class="sd">        &gt;&gt;&gt; rundata = setrun()</span>
+<span class="sd">        &gt;&gt;&gt; kmltools.gauges2kml(rundata)</span>
+
+<span class="sd">    By default this creates a file named *gauges.kml* that can be opened in</span>
+<span class="sd">    Google Earth.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="k">if</span> <span class="n">rundata</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">setrun</span>
+            <span class="n">reload</span><span class="p">(</span><span class="n">setrun</span><span class="p">)</span>
+            <span class="n">rundata</span> <span class="o">=</span> <span class="n">setrun</span><span class="o">.</span><span class="n">setrun</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;*** cannot execute setrun file&quot;</span><span class="p">)</span>
+
+    <span class="n">elev</span> <span class="o">=</span> <span class="mf">0.</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_header</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+
+    <span class="n">gauges</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">gaugedata</span><span class="o">.</span><span class="n">gauges</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gauges</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="ow">and</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No gauges found in setrun.py&quot;</span><span class="p">)</span>
+
+
+    <span class="k">for</span> <span class="n">rnum</span><span class="p">,</span><span class="n">gauge</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">gauges</span><span class="p">):</span>
+        <span class="n">t1</span><span class="p">,</span><span class="n">t2</span> <span class="o">=</span> <span class="n">gauge</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="n">x1</span><span class="p">,</span><span class="n">y1</span> <span class="o">=</span> <span class="n">gauge</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">gaugeno</span> <span class="o">=</span> <span class="n">gauge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Gauge </span><span class="si">%i</span><span class="s2">: </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">  </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">gaugeno</span><span class="p">,</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">))</span> \
+                    <span class="o">+</span> <span class="s2">&quot;  t1 = </span><span class="si">%s</span><span class="s2">,  t2 = </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">t2</span><span class="p">)))</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;gaugeno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gaugeno</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t1</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t2</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;x1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x1</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;y1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y1</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;elev&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">elev</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Gauge </span><span class="si">%i</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">rnum</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;  t1 = </span><span class="si">%s</span><span class="s2">, t2 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">t1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">t2</span><span class="p">))</span> \
+            <span class="o">+</span> <span class="s2">&quot;  x1 = </span><span class="si">%s</span><span class="s2">, y1 = </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">f2s</span><span class="p">(</span><span class="n">x1</span><span class="p">),</span><span class="n">f2s</span><span class="p">(</span><span class="n">y1</span><span class="p">))</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span>
+
+        <span class="n">gauge_text</span> <span class="o">=</span> <span class="n">kml_gauge</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span>
+        <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">gauge_text</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="n">kml_text</span> <span class="o">+</span> <span class="n">kml_footer</span><span class="p">()</span>
+    <span class="n">kml_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">kml_text</span><span class="p">)</span>
+    <span class="n">kml_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Created &quot;</span><span class="p">,</span><span class="n">fname</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="kml_header"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.kml_header">[docs]</a><span class="k">def</span> <span class="nf">kml_header</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;GeoClaw kml file&#39;</span><span class="p">):</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="s2">&lt;kml xmlns=&quot;http://www.opengis.net/kml/2.2&quot;&gt;</span>
+<span class="s2">&lt;Document&gt;&lt;name&gt;</span><span class="si">%s</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="k">return</span> <span class="n">header</span></div>
+
+<div class="viewcode-block" id="kml_footer"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.kml_footer">[docs]</a><span class="k">def</span> <span class="nf">kml_footer</span><span class="p">():</span>
+    <span class="n">footer</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;/Document&gt;</span>
+<span class="s2">&lt;/kml&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">footer</span></div>
+
+
+<div class="viewcode-block" id="kml_region"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.kml_region">[docs]</a><span class="k">def</span> <span class="nf">kml_region</span><span class="p">(</span><span class="n">mapping</span><span class="p">,</span> <span class="n">vertex_text</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">vertex_text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;x3&#39;</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+            <span class="c1"># quadrilateral with 4 corners specified</span>
+            <span class="n">vertex_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x2:.9f}</span><span class="s2">,</span><span class="si">{y2:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x3:.9f}</span><span class="s2">,</span><span class="si">{y3:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x4:.9f}</span><span class="s2">,</span><span class="si">{y4:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># rectangle with 2 corners specified</span>
+            <span class="n">vertex_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x2:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x2:.9f}</span><span class="s2">,</span><span class="si">{y2:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y2:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;vertices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vertex_text</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">])</span><span class="o">==</span><span class="mi">6</span><span class="p">:</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;FF&#39;</span> <span class="o">+</span> <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;Style id=&quot;Path&quot;&gt;</span>
+<span class="s2">&lt;LineStyle&gt;&lt;color&gt;</span><span class="si">{color:s}</span><span class="s2">&lt;/color&gt;&lt;width&gt;</span><span class="si">{width:d}</span><span class="s2">&lt;/width&gt;&lt;/LineStyle&gt;</span>
+<span class="s2">&lt;PolyStyle&gt;&lt;color&gt;00000000&lt;/color&gt;&lt;/PolyStyle&gt;</span>
+<span class="s2">&lt;/Style&gt;</span>
+<span class="s2">&lt;Placemark&gt;&lt;name&gt;</span><span class="si">{name:s}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">&lt;description&gt;</span><span class="si">{desc:s}</span><span class="s2">&lt;/description&gt;</span>
+<span class="s2">&lt;styleUrl&gt;#Path&lt;/styleUrl&gt;</span>
+<span class="s2">&lt;Polygon&gt;</span>
+<span class="s2">&lt;tessellate&gt;1&lt;/tessellate&gt;</span>
+<span class="s2">&lt;altitudeMode&gt;clampToGround&lt;/altitudeMode&gt;</span>
+<span class="s2">&lt;outerBoundaryIs&gt;&lt;LinearRing&gt;&lt;coordinates&gt;</span>
+<span class="si">{vertices:s}</span><span class="s2"></span>
+<span class="s2">&lt;/coordinates&gt;&lt;/LinearRing&gt;&lt;/outerBoundaryIs&gt;</span>
+<span class="s2">&lt;/Polygon&gt;</span>
+<span class="s2">&lt;/Placemark&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">kml_text</span></div>
+
+<div class="viewcode-block" id="kml_line"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.kml_line">[docs]</a><span class="k">def</span> <span class="nf">kml_line</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">])</span><span class="o">==</span><span class="mi">6</span><span class="p">:</span>
+        <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;FF&#39;</span> <span class="o">+</span> <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+
+        <span class="n">line_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="si">{x2:.9f}</span><span class="s2">,</span><span class="si">{y2:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2"></span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;line&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">line_text</span>
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;Style id=&quot;Path&quot;&gt;</span>
+<span class="s2">&lt;LineStyle&gt;&lt;color&gt;</span><span class="si">{color:s}</span><span class="s2">&lt;/color&gt;&lt;width&gt;</span><span class="si">{width:d}</span><span class="s2">&lt;/width&gt;&lt;/LineStyle&gt;</span>
+<span class="s2">&lt;PolyStyle&gt;&lt;color&gt;00000000&lt;/color&gt;&lt;/PolyStyle&gt;</span>
+<span class="s2">&lt;/Style&gt;</span>
+<span class="s2">&lt;Placemark&gt;&lt;name&gt;</span><span class="si">{name:s}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">&lt;description&gt;</span><span class="si">{desc:s}</span><span class="s2">&lt;/description&gt;</span>
+<span class="s2">&lt;styleUrl&gt;#Path&lt;/styleUrl&gt;</span>
+<span class="s2">&lt;LineString&gt;</span>
+<span class="s2">&lt;tessellate&gt;1&lt;/tessellate&gt;</span>
+<span class="s2">&lt;altitudeMode&gt;clampToGround&lt;/altitudeMode&gt;</span>
+<span class="s2">&lt;coordinates&gt;</span>
+<span class="si">{line:s}</span><span class="s2"></span>
+<span class="s2">&lt;/coordinates&gt;</span>
+<span class="s2">&lt;/LineString&gt;</span>
+<span class="s2">&lt;/Placemark&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">kml_text</span></div>
+
+<div class="viewcode-block" id="kml_gauge"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.kml_gauge">[docs]</a><span class="k">def</span> <span class="nf">kml_gauge</span><span class="p">(</span><span class="n">mapping</span><span class="p">):</span>
+    <span class="n">gauge_text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{x1:.9f}</span><span class="s2">,</span><span class="si">{y1:.9f}</span><span class="s2">,</span><span class="si">{elev:.9f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="n">mapping</span><span class="p">[</span><span class="s1">&#39;gauge&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gauge_text</span>
+
+    <span class="n">kml_text</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">&lt;Placemark&gt;&lt;name&gt;Gauge </span><span class="si">{gaugeno:d}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">&lt;description&gt;</span><span class="si">{desc:s}</span><span class="s2">&lt;/description&gt;</span>
+<span class="s2">&lt;styleUrl&gt;#markerstyle&lt;/styleUrl&gt;</span>
+<span class="s2">&lt;Point&gt;</span>
+<span class="s2">&lt;coordinates&gt;</span>
+<span class="si">{gauge:s}</span><span class="s2"></span>
+<span class="s2">&lt;/coordinates&gt;</span>
+<span class="s2">&lt;/Point&gt;</span>
+<span class="s2">&lt;/Placemark&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">**</span><span class="n">mapping</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">kml_text</span></div>
+
+
+
+<div class="viewcode-block" id="kml_timespan"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.kml_timespan">[docs]</a><span class="k">def</span> <span class="nf">kml_timespan</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span><span class="n">t2</span><span class="p">,</span><span class="n">event_time</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">tz</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span><span class="n">tscale</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create time strings necessary for sliders in Google Earth.  The time</span>
+<span class="sd">    span will cover time [t1,t2], with the start of the event given by</span>
+<span class="sd">    event_time.</span>
+
+<span class="sd">    [t1,t2]    : time span,</span>
+
+<span class="sd">    event_time : Start of event in UTC :  [Y,M,D,H,M,S], e.g. [2010,2,27,3,34,0]</span>
+<span class="sd">    tz         : time zone offset to UTC.  e.g. +3 for Chile; -9 for Japan.</span>
+
+<span class="sd">    Time span element looks like ::</span>
+
+<span class="sd">        &lt;TimeSpan&gt;</span>
+<span class="sd">          &lt;begin&gt;2010-02-27T06:34:00+03:00&lt;/begin&gt;</span>
+<span class="sd">          &lt;end&gt;2010-02-27T07:04:00+03:00&lt;/end&gt;</span>
+<span class="sd">        &lt;/TimeSpan&gt;</span>
+
+<span class="sd">    As for how well this handles  Daylight  Savings time, here is what the documentation</span>
+<span class="sd">    on the Python &#39;time&#39; module has to say :</span>
+
+<span class="sd">    &quot;DST is Daylight Saving Time, an adjustment of the timezone by (usually) one hour</span>
+<span class="sd">    during part of the year. DST rules are magic (determined by local law) and can</span>
+<span class="sd">    change from year to year. The C library has a table containing the local rules</span>
+<span class="sd">    (often it is read from a system file for flexibility) and is the only source of</span>
+<span class="sd">    True Wisdom in this respect.&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">t1</span><span class="o">*</span><span class="n">tscale</span>   <span class="c1"># Time converted to seconds</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">t2</span><span class="o">*</span><span class="n">tscale</span>
+
+    <span class="kn">import</span> <span class="nn">time</span>
+    <span class="c1"># to adjust time from UTC to time in event locale.</span>
+    <span class="k">if</span> <span class="n">event_time</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Use local time.</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">())</span>  <span class="c1"># seconds UTC</span>
+        <span class="n">tz_offset</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">timezone</span><span class="o">/</span><span class="mf">3600.0</span>   <span class="c1"># in seconds</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ev</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">event_time</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>   <span class="c1"># Extend to 9 tuple; no DST</span>
+        <span class="c1"># mktime returns time in seconds + timezone offset, i.e. seconds UTC</span>
+        <span class="c1"># Subtract out the timezone offset here, since it will get added back</span>
+        <span class="c1"># in when we do gmtime(starttime + ...) below.</span>
+        <span class="n">starttime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">ev</span><span class="p">)</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">timezone</span>
+        <span class="k">if</span> <span class="n">tz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;===&gt; Time zone offset not defined;  assuming zero offset. &quot;</span> \
+                <span class="s2">&quot;Set plotdata.kml_tz_offset to define an offset (in hours) from &quot;</span>\
+                <span class="s2">&quot;UTC (positive west of UTC; negative east of UTC)&quot;</span><span class="p">)</span>
+            <span class="n">tz</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">tz_offset</span> <span class="o">=</span> <span class="n">tz</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">tz_offset</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">tzstr</span> <span class="o">=</span> <span class="s2">&quot;Z&quot;</span>  <span class="c1"># no offset; could also just set to &quot;+00:00&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Google Earth will show time slider time in local time, where</span>
+        <span class="c1"># local + offset = UTC.</span>
+        <span class="n">tz_offset</span> <span class="o">=</span> <span class="n">tz_offset</span><span class="o">*</span><span class="mf">3600.</span>    <span class="c1"># Offset in seconds</span>
+        <span class="n">tz</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">tz_offset</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">tz_offset</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">tzstr</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;+%H:%M&quot;</span><span class="p">,</span><span class="n">tz</span><span class="p">)</span>  <span class="c1"># Time to UTC</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tzstr</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;-%H:%M&quot;</span><span class="p">,</span><span class="n">tz</span><span class="p">)</span>
+
+    <span class="c1"># Get time strings for start and end of time span</span>
+    <span class="n">gbegin</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">starttime</span> <span class="o">+</span> <span class="n">t1</span><span class="p">)</span>
+    <span class="n">timestrbegin</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">,</span> <span class="n">gbegin</span><span class="p">),</span><span class="n">tzstr</span><span class="p">)</span>
+
+    <span class="n">gend</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">starttime</span> <span class="o">+</span> <span class="n">t2</span><span class="p">)</span>
+    <span class="n">timestrend</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:%S&quot;</span><span class="p">,</span> <span class="n">gend</span><span class="p">),</span><span class="n">tzstr</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">timestrbegin</span><span class="p">,</span><span class="n">timestrend</span></div>
+
+<div class="viewcode-block" id="topo2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.topo2kml">[docs]</a><span class="k">def</span> <span class="nf">topo2kml</span><span class="p">(</span><span class="n">topo_file_name</span><span class="p">,</span> <span class="n">topo_type</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;00FF00&#39;</span><span class="p">):</span>       
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a kml file putting a box around the region covered by a topofile.</span>
+<span class="sd">    Color is green by default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">from</span> <span class="nn">clawpack.geoclaw</span> <span class="k">import</span> <span class="n">topotools</span>
+    <span class="n">topo</span> <span class="o">=</span> <span class="n">topotools</span><span class="o">.</span><span class="n">Topography</span><span class="p">(</span><span class="n">topo_file_name</span><span class="p">,</span> <span class="n">topo_type</span><span class="o">=</span><span class="n">topo_type</span><span class="p">)</span>
+    <span class="n">topo</span><span class="o">.</span><span class="n">read_header</span><span class="p">()</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="n">topo</span><span class="o">.</span><span class="n">extent</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">topo_file_name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.kml&#39;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="n">box2kml</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="dtopo2kml"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.dtopo2kml">[docs]</a><span class="k">def</span> <span class="nf">dtopo2kml</span><span class="p">(</span><span class="n">dtopo_file_name</span><span class="p">,</span> <span class="n">dtopo_type</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;8888FF&#39;</span><span class="p">):</span>       
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a kml file putting a box around the region covered by a dtopofile.</span>
+<span class="sd">    Color is pink by default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">from</span> <span class="nn">clawpack.geoclaw</span> <span class="k">import</span> <span class="n">dtopotools</span>
+    <span class="n">dtopo</span> <span class="o">=</span> <span class="n">dtopotools</span><span class="o">.</span><span class="n">DTopography</span><span class="p">()</span>
+    <span class="n">dtopo</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">dtopo_file_name</span><span class="p">,</span> <span class="n">dtopo_type</span><span class="p">)</span>
+    <span class="n">x1</span> <span class="o">=</span> <span class="n">dtopo</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">dtopo</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">y1</span> <span class="o">=</span> <span class="n">dtopo</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">y2</span> <span class="o">=</span> <span class="n">dtopo</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+    <span class="n">xy</span> <span class="o">=</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">y1</span><span class="p">,</span><span class="n">y2</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dtopo_file_name</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">.kml&#39;</span> <span class="o">%</span> <span class="n">name</span>
+    <span class="n">box2kml</span><span class="p">(</span><span class="n">xy</span><span class="p">,</span> <span class="n">file_name</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span><span class="p">)</span></div>
+        
+
+<div class="viewcode-block" id="make_input_data_kmls"><a class="viewcode-back" href="../../geoclaw/geoclaw.html#geoclaw.kmltools.make_input_data_kmls">[docs]</a><span class="k">def</span> <span class="nf">make_input_data_kmls</span><span class="p">(</span><span class="n">rundata</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Produce kml files for the computational domain, all gauges and regions </span>
+<span class="sd">    specified, and all topo and dtopo files specified in rundata.</span>
+<span class="sd">    This can be used, e.g. by adding the lines </span>
+
+<span class="sd">        from clawpack.geoclaw import kmltools</span>
+<span class="sd">        kmltools.make_input_data_kmls(rundata)</span>
+
+<span class="sd">    to the end of a `setrun.py` file so that `make data` will generate all</span>
+<span class="sd">    kml files in addition to the `*.data` files.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">topotools</span><span class="p">,</span> <span class="n">dtopotools</span>
+
+    <span class="n">regions2kml</span><span class="p">(</span><span class="n">rundata</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">gauges2kml</span><span class="p">(</span><span class="n">rundata</span><span class="p">)</span>
+
+    <span class="n">topofiles</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">topo_data</span><span class="o">.</span><span class="n">topofiles</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">topofiles</span><span class="p">:</span>
+        <span class="n">topo_file_name</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">topo_type</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">topo2kml</span><span class="p">(</span><span class="n">topo_file_name</span><span class="p">,</span> <span class="n">topo_type</span><span class="p">)</span>
+        
+    <span class="n">dtopofiles</span> <span class="o">=</span> <span class="n">rundata</span><span class="o">.</span><span class="n">dtopo_data</span><span class="o">.</span><span class="n">dtopofiles</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dtopofiles</span><span class="p">:</span>
+        <span class="n">dtopo_file_name</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">dtopo_type</span> <span class="o">=</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dtopo2kml</span><span class="p">(</span><span class="n">dtopo_file_name</span><span class="p">,</span> <span class="n">dtopo_type</span><span class="p">)</span></div>
+        
+        
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

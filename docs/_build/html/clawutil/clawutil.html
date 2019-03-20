@@ -1,0 +1,780 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>clawutil package &#8212; ClawPack 4.5 documentation</title>
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="python" href="../geoclaw/modules.html" />
+    <link rel="prev" title="python" href="modules.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../geoclaw/modules.html" title="python"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="python"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../modules.html" >geoclaw</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" accesskey="U">python</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="clawutil-package">
+<h1>clawutil package<a class="headerlink" href="#clawutil-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-clawutil.chardiff">
+<span id="clawutil-chardiff-module"></span><h2>clawutil.chardiff module<a class="headerlink" href="#module-clawutil.chardiff" title="Permalink to this headline">¶</a></h2>
+<p>Module to perform charcter-wise diff of two files or a set of identically
+named files in two directories.</p>
+<dl class="docutils">
+<dt>Can by used from the command line via:</dt>
+<dd>python chardiff.py file1 file2
+python chardiff.py dir1 dir2
+python chardiff.py dir1 dir2 [‘fort.q*’,’<a href="#id1"><span class="problematic" id="id2">*</span></a>.data’]</dd>
+</dl>
+<p>The last example only compares the files with the specified pattern.
+Other optional arguments can also be specified.</p>
+<dl class="docutils">
+<dt>Command line flags include:</dt>
+<dd>-v, –verbose = Verbose output
+-h, –help = Display this help</dd>
+</dl>
+<dl class="exception">
+<dt id="clawutil.chardiff.Usage">
+<em class="property">exception </em><code class="descclassname">clawutil.chardiff.</code><code class="descname">Usage</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/chardiff.html#Usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.chardiff.Usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.chardiff.chardiff_dir">
+<code class="descclassname">clawutil.chardiff.</code><code class="descname">chardiff_dir</code><span class="sig-paren">(</span><em>dir1</em>, <em>dir2</em>, <em>dir3='_char_diff'</em>, <em>file_pattern='all'</em>, <em>regression_test_files='all'</em>, <em>overwrite=False</em>, <em>print_all_lines=True</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/chardiff.html#chardiff_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.chardiff.chardiff_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run chardiff_file on all common files between dir1 and dir2 that match the patterns in the
+list files.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.chardiff.chardiff_file">
+<code class="descclassname">clawutil.chardiff.</code><code class="descname">chardiff_file</code><span class="sig-paren">(</span><em>fname1</em>, <em>fname2</em>, <em>print_all_lines=True</em>, <em>hfile1=''</em>, <em>hfile2=''</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/chardiff.html#chardiff_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.chardiff.chardiff_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-clawutil.claw_git_status">
+<span id="clawutil-claw-git-status-module"></span><h2>clawutil.claw_git_status module<a class="headerlink" href="#module-clawutil.claw_git_status" title="Permalink to this headline">¶</a></h2>
+<p>Print status of all clawpack git repositories.</p>
+<dl class="function">
+<dt id="clawutil.claw_git_status.make_git_status_file">
+<code class="descclassname">clawutil.claw_git_status.</code><code class="descname">make_git_status_file</code><span class="sig-paren">(</span><em>outdir=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/claw_git_status.html#make_git_status_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.claw_git_status.make_git_status_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print status of all clawpack git repositories.
+Creates 2 files:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>outdir + ‘/claw_git_status.txt’</dt>
+<dd>contains list of last commits, what branch is checked out, and
+a short version of git status.</dd>
+<dt>outdir + ‘/claw_git_diffs.txt’</dt>
+<dd>contains all diffs between current working state and last commits.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.claw_git_status.repository_diff">
+<code class="descclassname">clawutil.claw_git_status.</code><code class="descname">repository_diff</code><span class="sig-paren">(</span><em>repository</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/claw_git_status.html#repository_diff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.claw_git_status.repository_diff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses a series of system command line calls via the subprocess module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first simple">
+<li><em>repository</em> (str) - Name of clawpack repository whose status is needed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Output:</th><td class="field-body"><ul class="first last simple">
+<li>(str) - String with diff output</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.claw_git_status.repository_status">
+<code class="descclassname">clawutil.claw_git_status.</code><code class="descname">repository_status</code><span class="sig-paren">(</span><em>repository</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/claw_git_status.html#repository_status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.claw_git_status.repository_status" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return string representation of git status of <em>repository</em></p>
+<p>Uses a series of system command line calls via the subprocess module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first simple">
+<li><em>repository</em> (str) - Name of clawpack repository whose status is needed.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Output:</th><td class="field-body"><ul class="first last simple">
+<li>(str) - String with status output</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="clawutil-clawcode2html-module">
+<h2>clawutil.clawcode2html module<a class="headerlink" href="#clawutil-clawcode2html-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="clawutil-convert-readme-module">
+<h2>clawutil.convert_readme module<a class="headerlink" href="#clawutil-convert-readme-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-clawutil.data">
+<span id="clawutil-data-module"></span><h2>clawutil.data module<a class="headerlink" href="#module-clawutil.data" title="Permalink to this headline">¶</a></h2>
+<p>Data Module</p>
+<p>Contains the general class definition and the subclasses of the Clawpack data
+objects.</p>
+<dl class="docutils">
+<dt>Changes in 5.0:</dt>
+<dd><p class="first">Stripped down version of Data object, no longer keeps track of “owners”.
+Data classes are now subclasses of ClawData, which checks if attributes</p>
+<blockquote class="last">
+<div>already exist before setting.</div></blockquote>
+</dd>
+</dl>
+<dl class="class">
+<dt id="clawutil.data.ClawData">
+<em class="property">class </em><code class="descclassname">clawutil.data.</code><code class="descname">ClawData</code><span class="sig-paren">(</span><em>attributes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class to be subclassed when defining data objects that should have
+a limited set of allowed attributes.  Useful to guard against
+typos or misrembering the names of expected attributes.</p>
+<p>Resetting values of existing attributes is allowed as usual,
+but new attributes can only be added using the method add_attribute.</p>
+<p>Trying to set a nonexistent attribute will raise an AttributeError
+exception, except for those starting with ‘_’.</p>
+<dl class="method">
+<dt id="clawutil.data.ClawData.add_attribute">
+<code class="descname">add_attribute</code><span class="sig-paren">(</span><em>name</em>, <em>value=None</em>, <em>add_to_list=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.add_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.add_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an attribute called name to the data object</p>
+<p>If an attribute needs to be added to the object, this routine must be
+called or the attribute will not be written out.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first last simple">
+<li><em>name</em> - (string) Name of the data attribute</li>
+<li><em>value</em> - (id) Value to set <em>name</em> to, defaults to None</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.add_attributes">
+<code class="descname">add_attributes</code><span class="sig-paren">(</span><em>arg_list</em>, <em>value=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.add_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.add_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a list of attributes, each initialized to <em>value</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.attributes">
+<code class="descname">attributes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns tuple of attribute names</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.close_data_file">
+<code class="descname">close_data_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.close_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.close_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close output data file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.data_write">
+<code class="descname">data_write</code><span class="sig-paren">(</span><em>name=None</em>, <em>value=None</em>, <em>alt_name=None</em>, <em>description=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.data_write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.data_write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out value to data file, in the form</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">value</span> <span class="o">=</span><span class="p">:</span> <span class="n">name</span>   <span class="c1"># [description]</span>
+</pre></div>
+</div>
+<p>Remove brackets and commas from lists, and replace booleans by T/F.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first last simple">
+<li><em>name</em> - (string) normally a string defining the variable,
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">name==None</span></code>, write a blank line.</li>
+<li><em>description</em> - (string) optional description</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.has_attribute">
+<code class="descname">has_attribute</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.has_attribute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.has_attribute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if this data object has the given attributes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first simple">
+<li><em>name</em> - (string) Name of attribute</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Output:</th><td class="field-body"><ul class="first last simple">
+<li>(bool) - True if data object contains a data attribute name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.iteritems">
+<code class="descname">iteritems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.iteritems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.iteritems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an iterator of attributes and values from this object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Output:</th><td class="field-body"><ul class="first last simple">
+<li>(Iterator) Iterator over attributes and values</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.open_data_file">
+<code class="descname">open_data_file</code><span class="sig-paren">(</span><em>name</em>, <em>datasource='setrun.py'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.open_data_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.open_data_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a data file and write a warning header.
+Warning header starts with ‘#’ character.  These lines are skipped if
+data file is opened using the library routine opendatafile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first simple">
+<li><em>name</em> - (string) Name of data file</li>
+<li><em>datasource</em> - (string) Source for the data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Output:</th><td class="field-body"><ul class="first last simple">
+<li>(file) - file object</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>path</em>, <em>force=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read and fill applicable data attributes.</p>
+<p>Note that if the data attribute is not found an exception will be
+raised unless the force argument is set to True in which case a new
+attribute will be added.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.remove_attributes">
+<code class="descname">remove_attributes</code><span class="sig-paren">(</span><em>arg_list</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.remove_attributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.remove_attributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the listed attributes.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawData.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>out_file</em>, <em>data_source='setrun.py'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawData.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out all data files in this ClawData object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="clawutil.data.ClawInputData">
+<em class="property">class </em><code class="descclassname">clawutil.data.</code><code class="descname">ClawInputData</code><span class="sig-paren">(</span><em>num_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawInputData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawInputData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#clawutil.data.ClawData" title="clawutil.data.ClawData"><code class="xref py py-class docutils literal notranslate"><span class="pre">clawutil.data.ClawData</span></code></a></p>
+<p>Object containing basic Clawpack input data, usually written to ‘claw.data’.</p>
+<dl class="method">
+<dt id="clawutil.data.ClawInputData.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>out_file='claw.data'</em>, <em>data_source='setrun.py'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawInputData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawInputData.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write input data to a file</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="clawutil.data.ClawRunData">
+<em class="property">class </em><code class="descclassname">clawutil.data.</code><code class="descname">ClawRunData</code><span class="sig-paren">(</span><em>pkg</em>, <em>num_dim</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawRunData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawRunData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#clawutil.data.ClawData" title="clawutil.data.ClawData"><code class="xref py py-class docutils literal notranslate"><span class="pre">clawutil.data.ClawData</span></code></a></p>
+<p>Object that contains all data objects that need to written out.</p>
+<p>Depending on the package type, this object contains the necessary data
+objects that need to eventually be written out to files.</p>
+<dl class="method">
+<dt id="clawutil.data.ClawRunData.add_data">
+<code class="descname">add_data</code><span class="sig-paren">(</span><em>data</em>, <em>name</em>, <em>file_name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawRunData.add_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawRunData.add_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add data object named <em>name</em> and written to <em>file_name</em>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawRunData.new_UserData">
+<code class="descname">new_UserData</code><span class="sig-paren">(</span><em>name</em>, <em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawRunData.new_UserData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawRunData.new_UserData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new attribute called name
+for application specific data to be written
+to the data file fname.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawRunData.replace_data">
+<code class="descname">replace_data</code><span class="sig-paren">(</span><em>name</em>, <em>new_object</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawRunData.replace_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawRunData.replace_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace data objected named <em>name</em> with <em>new_object</em></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.ClawRunData.write">
+<code class="descname">write</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#ClawRunData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.ClawRunData.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out each data objects in datalist</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="clawutil.data.UserData">
+<em class="property">class </em><code class="descclassname">clawutil.data.</code><code class="descname">UserData</code><span class="sig-paren">(</span><em>fname</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#UserData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.UserData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#clawutil.data.ClawData" title="clawutil.data.ClawData"><code class="xref py py-class docutils literal notranslate"><span class="pre">clawutil.data.ClawData</span></code></a></p>
+<p>Object that will be written out to user file such as setprob.data, as
+determined by the fname attribute.</p>
+<dl class="method">
+<dt id="clawutil.data.UserData.add_param">
+<code class="descname">add_param</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>descr=''</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#UserData.add_param"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.UserData.add_param" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="clawutil.data.UserData.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>data_source='setrun.py'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#UserData.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.UserData.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out all data files in this ClawData object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.data.get_remote_file">
+<code class="descclassname">clawutil.data.</code><code class="descname">get_remote_file</code><span class="sig-paren">(</span><em>url</em>, <em>output_dir=None</em>, <em>file_name=None</em>, <em>force=False</em>, <em>verbose=False</em>, <em>ask_user=False</em>, <em>unpack=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#get_remote_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.get_remote_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch file located at <em>url</em> and store at <em>output_dir</em>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first simple">
+<li><em>url</em> (path) - URL to file to be downloaded.</li>
+<li><em>output_dir</em> (path) - Directory that the remote file will be downloaded
+to.  Defaults to the GeoClaw sratch directory defined by
+<em>os.path.join(os.environ[‘CLAW’], ‘geoclaw’, ‘scratch’)</em>.</li>
+<li><em>file_name</em> (string) - Name of local file.  This defaults to the name of
+the remote file.</li>
+<li><em>force</em> (bool) - Force downloading of remote file regardless of whether
+it exists locally or not.  Default is <em>False</em></li>
+<li><em>verbose</em> (bool) - Print out status information.  Default is <em>False</em></li>
+<li><em>ask_user</em> (bool) - Whether to ask the user if it is ok to download the
+file before proceeding.  Default is <em>False</em></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<p>Exceptions are raised from the <em>urllib</em> module having to do with errors
+fetching the remote file.  Please see its documentation for more details of
+the exceptions that can be raised.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Notes:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<p>If fetching the file fails <em>urllib</em> does not always warn you so if errors
+occur it may be wise to check to make sure the downloaded file actually has
+content in it.</p>
+<p>returns <em>unarchived_output_path</em></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.data.strip_archive_extensions">
+<code class="descclassname">clawutil.data.</code><code class="descname">strip_archive_extensions</code><span class="sig-paren">(</span><em>path, extensions=['tar', 'tgz', 'bz2', 'gz', 'zip']</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/data.html#strip_archive_extensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.data.strip_archive_extensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip off archive extensions defined in <em>extensions</em> list.</p>
+<p>Return stripped path calling this function recursively until all splitext
+does not provide an extension in the <em>extensions</em> list.  Note that zip
+files store the names of the contained files in the archive and the
+returned path will more than likely not have the appropriate file suffix.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-clawutil.git">
+<span id="clawutil-git-module"></span><h2>clawutil.git module<a class="headerlink" href="#module-clawutil.git" title="Permalink to this headline">¶</a></h2>
+<p>Clawpack GitHub utility functions module</p>
+<p>Contains functions for cloning the repositories at www.github.com/clawpack
+and checking the status of the local repositories.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Available Functions:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">status - Checks the status of the local repositories
+clone - Clones git repositories from GitHub</td>
+</tr>
+</tbody>
+</table>
+<dl class="exception">
+<dt id="clawutil.git.Usage">
+<em class="property">exception </em><code class="descclassname">clawutil.git.</code><code class="descname">Usage</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/git.html#Usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.git.Usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.git.clone">
+<code class="descclassname">clawutil.git.</code><code class="descname">clone</code><span class="sig-paren">(</span><em>repo</em>, <em>force=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/git.html#clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.git.clone" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function clones git repositories located at GitHub.</p>
+<p>It first checks to make sure a directory of each name does not already
+exist unless force == True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"><ul class="first last simple">
+<li><dl class="first docutils">
+<dt>repos_list (list) - List of repositories to fetch, if empty then fetch</dt>
+<dd>all.</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>force (bool) - Whether to overwrite existing directories if present,</dt>
+<dd>(<cite>default == False</cite>).</dd>
+</dl>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.git.status">
+<code class="descclassname">clawutil.git.</code><code class="descname">status</code><span class="sig-paren">(</span><em>path=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/git.html#status"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.git.status" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks the status of the repository at path.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-clawutil.imagediff">
+<span id="clawutil-imagediff-module"></span><h2>clawutil.imagediff module<a class="headerlink" href="#module-clawutil.imagediff" title="Permalink to this headline">¶</a></h2>
+<p>Module to diff two images or directories full of images.</p>
+<dl class="docutils">
+<dt>Can by used from the command line via:</dt>
+<dd>python imagediff.py file1 file2
+python imagediff.py dir1 dir2 [dir3]</dd>
+</dl>
+<p>In the latter case dir1 and dir2 are any two directories and all
+images will be compared.  The optional dir3 argument gives the directory
+for the resulting diff’s and html files.  Default is ‘_image_diff’.</p>
+<dl class="docutils">
+<dt>Command line flags include:</dt>
+<dd>-v, –verbose = Verbose output
+-r, –relocatable = Copy original image files to dir3 also
+-h, –help = Display this help</dd>
+</dl>
+<dl class="exception">
+<dt id="clawutil.imagediff.Usage">
+<em class="property">exception </em><code class="descclassname">clawutil.imagediff.</code><code class="descname">Usage</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/imagediff.html#Usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.imagediff.Usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.imagediff.imagediff_dir">
+<code class="descclassname">clawutil.imagediff.</code><code class="descname">imagediff_dir</code><span class="sig-paren">(</span><em>dir1</em>, <em>dir2</em>, <em>dir3='_image_diff'</em>, <em>ext='.png'</em>, <em>regression_test_files='all'</em>, <em>relocatable=False</em>, <em>overwrite=False</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/imagediff.html#imagediff_dir"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.imagediff.imagediff_dir" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="clawutil.imagediff.imagediff_file">
+<code class="descclassname">clawutil.imagediff.</code><code class="descname">imagediff_file</code><span class="sig-paren">(</span><em>fname1</em>, <em>fname2</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/imagediff.html#imagediff_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.imagediff.imagediff_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="clawutil.imagediff.make_imagediff">
+<code class="descclassname">clawutil.imagediff.</code><code class="descname">make_imagediff</code><span class="sig-paren">(</span><em>fname1</em>, <em>fname2</em>, <em>fname3=''</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/imagediff.html#make_imagediff"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.imagediff.make_imagediff" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-clawutil.make_all">
+<span id="clawutil-make-all-module"></span><h2>clawutil.make_all module<a class="headerlink" href="#module-clawutil.make_all" title="Permalink to this headline">¶</a></h2>
+<p>Performs ‘make all’ in each subdirectory to create sample results for the
+gallery or to perform regression tests against results in the gallery,
+or elsewhere.</p>
+<p>Sends output and errors to separate files to simplify looking for errors.</p>
+<dl class="function">
+<dt id="clawutil.make_all.list_examples">
+<code class="descclassname">clawutil.make_all.</code><code class="descname">list_examples</code><span class="sig-paren">(</span><em>examples_dir</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/make_all.html#list_examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.make_all.list_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches all subdirectories of examples_dir for examples and prints out a list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.make_all.make_all">
+<code class="descclassname">clawutil.make_all.</code><code class="descname">make_all</code><span class="sig-paren">(</span><em>examples_dir='.'</em>, <em>make_clean_first=False</em>, <em>env=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/make_all.html#make_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.make_all.make_all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-clawutil.nbtools">
+<span id="clawutil-nbtools-module"></span><h2>clawutil.nbtools module<a class="headerlink" href="#module-clawutil.nbtools" title="Permalink to this headline">¶</a></h2>
+<p>Useful tools for running Clawpack from an IPython notebook.</p>
+<dl class="function">
+<dt id="clawutil.nbtools.make_all">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_all</code><span class="sig-paren">(</span><em>label=None</em>, <em>env=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform ‘make all’ and display links</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_data">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_data</code><span class="sig-paren">(</span><em>env=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform ‘make data’ and display link.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_driver">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_driver</code><span class="sig-paren">(</span><em>args</em>, <em>env</em>, <em>outfile</em>, <em>verbose</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_driver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_driver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use subprocess to run a make command and capture the output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Input:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><em>args</em>: arguments to the make command</li>
+<li><em>env</em>: environment to run in (if None, use <em>os.environ</em>)
+Useful if $CLAW must be set in notebook.</li>
+<li><em>outfile</em>: file name of file for capturing stdout and stderr</li>
+<li><em>vervose</em>: if True, print out command and display link to output file</li>
+</ul>
+<p>If the return code is non-zero, print a warning and link to output file
+regardless of value of <em>verbose</em>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_exe">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_exe</code><span class="sig-paren">(</span><em>new=False</em>, <em>env=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_exe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_exe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform ‘make .exe’ and display link.
+If <em>new = True</em>, do ‘make new’ instead to force recompilation of everything.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_htmls">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_htmls</code><span class="sig-paren">(</span><em>outfile=None</em>, <em>env=None</em>, <em>verbose=False</em>, <em>readme_link=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_htmls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_htmls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform ‘make .htmls’ and display link.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_output">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_output</code><span class="sig-paren">(</span><em>label=None</em>, <em>env=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform ‘make output’ and display link.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_output_and_plots">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_output_and_plots</code><span class="sig-paren">(</span><em>label=None</em>, <em>env=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_output_and_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_output_and_plots" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="clawutil.nbtools.make_plots">
+<code class="descclassname">clawutil.nbtools.</code><code class="descname">make_plots</code><span class="sig-paren">(</span><em>label=None</em>, <em>env=None</em>, <em>verbose=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/nbtools.html#make_plots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.nbtools.make_plots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform ‘make plots’ and display links</p>
+</dd></dl>
+
+</div>
+<div class="section" id="clawutil-regression-tests-module">
+<h2>clawutil.regression_tests module<a class="headerlink" href="#clawutil-regression-tests-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="clawutil-runclaw-module">
+<h2>clawutil.runclaw module<a class="headerlink" href="#clawutil-runclaw-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-clawutil.setenv">
+<span id="clawutil-setenv-module"></span><h2>clawutil.setenv module<a class="headerlink" href="#module-clawutil.setenv" title="Permalink to this headline">¶</a></h2>
+<p>Generate ClawPack environment variables for bash and csh</p>
+<p>Checks to see which Clawpack projects/repositories have been downloaded
+by either checking in the CLAW directory (which defaults to the current
+directory) or by overridden paths set in the command line arguments.</p>
+<dl class="exception">
+<dt id="clawutil.setenv.Usage">
+<em class="property">exception </em><code class="descclassname">clawutil.setenv.</code><code class="descname">Usage</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/setenv.html#Usage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.setenv.Usage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.setenv.check_repos_dependencies">
+<code class="descclassname">clawutil.setenv.</code><code class="descname">check_repos_dependencies</code><span class="sig-paren">(</span><em>project_name</em>, <em>available_projects</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/setenv.html#check_repos_dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.setenv.check_repos_dependencies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that required repositories of project_name are present</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="clawutil.setenv.write_env_files">
+<code class="descclassname">clawutil.setenv.</code><code class="descname">write_env_files</code><span class="sig-paren">(</span><em>claw_path</em>, <em>verbose=True</em>, <em>outfile_base='setenv'</em>, <em>shell_type='both'</em>, <em>**kargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/setenv.html#write_env_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.setenv.write_env_files" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="clawutil.setenv.write_environment_variable">
+<code class="descclassname">clawutil.setenv.</code><code class="descname">write_environment_variable</code><span class="sig-paren">(</span><em>csh_handle</em>, <em>bash_handle</em>, <em>var</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/clawutil/setenv.html#write_environment_variable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#clawutil.setenv.write_environment_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="clawutil-test-module">
+<h2>clawutil.test module<a class="headerlink" href="#clawutil-test-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-clawutil.whichclaw">
+<span id="clawutil-whichclaw-module"></span><h2>clawutil.whichclaw module<a class="headerlink" href="#module-clawutil.whichclaw" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Print out</dt>
+<dd><ul class="first last simple">
+<li>settings of environment variables,</li>
+<li>elements of sys.path that contain “clawpack”</li>
+<li>lines of site-packages/easy-install.pth files that contain “clawpack”</li>
+</ul>
+</dd>
+</dl>
+<p>Useful for figuring out how paths are set and which version of clawpack is being
+used when more than one has been installed.</p>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li>this should be run in the users’ shell (which might not be bash)</li>
+<li>this script has not been extensively tested, maybe it’s missing something</li>
+</ul>
+</div>
+<div class="section" id="module-clawutil">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-clawutil" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">clawutil package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-clawutil.chardiff">clawutil.chardiff module</a></li>
+<li><a class="reference internal" href="#module-clawutil.claw_git_status">clawutil.claw_git_status module</a></li>
+<li><a class="reference internal" href="#clawutil-clawcode2html-module">clawutil.clawcode2html module</a></li>
+<li><a class="reference internal" href="#clawutil-convert-readme-module">clawutil.convert_readme module</a></li>
+<li><a class="reference internal" href="#module-clawutil.data">clawutil.data module</a></li>
+<li><a class="reference internal" href="#module-clawutil.git">clawutil.git module</a></li>
+<li><a class="reference internal" href="#module-clawutil.imagediff">clawutil.imagediff module</a></li>
+<li><a class="reference internal" href="#module-clawutil.make_all">clawutil.make_all module</a></li>
+<li><a class="reference internal" href="#module-clawutil.nbtools">clawutil.nbtools module</a></li>
+<li><a class="reference internal" href="#clawutil-regression-tests-module">clawutil.regression_tests module</a></li>
+<li><a class="reference internal" href="#clawutil-runclaw-module">clawutil.runclaw module</a></li>
+<li><a class="reference internal" href="#module-clawutil.setenv">clawutil.setenv module</a></li>
+<li><a class="reference internal" href="#clawutil-test-module">clawutil.test module</a></li>
+<li><a class="reference internal" href="#module-clawutil.whichclaw">clawutil.whichclaw module</a></li>
+<li><a class="reference internal" href="#module-clawutil">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="modules.html"
+                        title="previous chapter">python</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../geoclaw/modules.html"
+                        title="next chapter">python</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/clawutil/clawutil.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../geoclaw/modules.html" title="python"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="modules.html" title="python"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../modules.html" >geoclaw</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="modules.html" >python</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

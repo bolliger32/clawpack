@@ -1,0 +1,162 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>visclaw.gauge_interp &#8212; ClawPack 4.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for visclaw.gauge_interp</h1><div class="highlight"><pre>
+<span></span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Tools to assist interpolating from fort.gauge output to a given</span>
+<span class="sd">set of times (e.g. equally spaced).</span>
+
+<span class="sd">Example:</span>
+<span class="sd">  Set gaugeno to the desired gauge number, iq to the component of q to </span>
+<span class="sd">  plot, e.g. iq=3 for surface eta.</span>
+
+<span class="sd">    import gauge_interp</span>
+<span class="sd">    getgauge = gauge_interp.make_getgauge(output=&#39;_outdir&#39;)</span>
+<span class="sd">    gf,t1,t2 = gauge_interp.gauge_function(getgauge, gaugeno, iq)</span>
+<span class="sd">    t = numpy.linspace(t1,t2,50)  # desired times of interpolation</span>
+<span class="sd">    gt = gf(t)</span>
+<span class="sd">    </span>
+<span class="sd">Then gt will be an array of the same length as t containing interpolated </span>
+<span class="sd">values (piecewise linear).</span>
+
+<span class="sd">See also the test function below, which can be run via:</span>
+
+<span class="sd">    $ cd $CLAW/geoclaw/examples/tsunami/chile2010</span>
+<span class="sd">    $ make .output</span>
+<span class="sd">    $ python</span>
+<span class="sd">    &gt;&gt;&gt; from clawpack.visclaw import gauge_interp</span>
+<span class="sd">    &gt;&gt;&gt; gauge_interp.test()</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<div class="viewcode-block" id="make_getgauge"><a class="viewcode-back" href="../../visclaw/visclaw.html#visclaw.gauge_interp.make_getgauge">[docs]</a><span class="k">def</span> <span class="nf">make_getgauge</span><span class="p">(</span><span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;_output&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create function getgauge that will grab one set of gauge data</span>
+<span class="sd">    from the fort.gauge file in directory specified by outdir.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">clawpack.visclaw.data</span> <span class="k">import</span> <span class="n">ClawPlotData</span>
+    <span class="n">plotdata</span> <span class="o">=</span> <span class="n">ClawPlotData</span><span class="p">()</span>
+    <span class="n">plotdata</span><span class="o">.</span><span class="n">outdir</span> <span class="o">=</span> <span class="n">outdir</span>
+    <span class="n">getgauge</span> <span class="o">=</span> <span class="n">plotdata</span><span class="o">.</span><span class="n">getgauge</span>
+    <span class="k">return</span> <span class="n">getgauge</span></div>
+    
+
+<div class="viewcode-block" id="gauge_function"><a class="viewcode-back" href="../../visclaw/visclaw.html#visclaw.gauge_interp.gauge_function">[docs]</a><span class="k">def</span> <span class="nf">gauge_function</span><span class="p">(</span><span class="n">getgauge</span><span class="p">,</span> <span class="n">gaugeno</span><span class="p">,</span> <span class="n">iq</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given getgauge function, return a function that</span>
+<span class="sd">    can be used to evaluate the iq component of q at any time</span>
+<span class="sd">    in the interval covered by the gauge output.</span>
+
+<span class="sd">    Also returns t1, t2 the end points of validity.</span>
+<span class="sd">    </span>
+<span class="sd">    Does piecewise linear interpolation based on g.q and g.q[iq,:]</span>
+<span class="sd">    where g is the gauge data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">interpolate</span>
+
+    <span class="n">g</span> <span class="o">=</span> <span class="n">getgauge</span><span class="p">(</span><span class="n">gaugeno</span><span class="p">)</span>
+    <span class="n">gf</span> <span class="o">=</span> <span class="n">interpolate</span><span class="o">.</span><span class="n">interp1d</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="n">iq</span><span class="p">,:])</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">gf</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span></div>
+
+
+<div class="viewcode-block" id="test"><a class="viewcode-back" href="../../visclaw/visclaw.html#visclaw.gauge_interp.test">[docs]</a><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">gaugeno</span><span class="o">=</span><span class="mi">32412</span><span class="p">,</span> <span class="n">iq</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+
+    <span class="c1"># Test should work in $CLAW/geoclaw/examples/tsunami/chile2010</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+    <span class="c1"># interpolate at a set of times t:</span>
+    <span class="n">getgauge</span> <span class="o">=</span> <span class="n">make_getgauge</span><span class="p">(</span><span class="n">outdir</span><span class="o">=</span><span class="s1">&#39;_output&#39;</span><span class="p">)</span>
+    <span class="n">gf</span><span class="p">,</span><span class="n">t1</span><span class="p">,</span><span class="n">t2</span> <span class="o">=</span> <span class="n">gauge_function</span><span class="p">(</span><span class="n">getgauge</span><span class="p">,</span> <span class="n">gaugeno</span><span class="p">,</span> <span class="n">iq</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">t1</span><span class="p">,</span><span class="n">t2</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">gt</span> <span class="o">=</span> <span class="n">gf</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># Plot the two for comparison:</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">gt</span><span class="p">,</span><span class="s1">&#39;ro&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;interpolated&#39;</span><span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">getgauge</span><span class="p">(</span><span class="n">gaugeno</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">q</span><span class="p">[</span><span class="n">iq</span><span class="p">,:],</span> <span class="s1">&#39;k-&#39;</span><span class="p">,</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;original data&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>

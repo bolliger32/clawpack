@@ -1,0 +1,136 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>visclaw.legend_tools &#8212; ClawPack 4.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for visclaw.legend_tools</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A tool to add a desired legend to an existing plot more easily when </span>
+<span class="sd">adaptive mesh refinement is used in VisClaw.</span>
+
+<span class="sd">To do fancier things with legends, see:</span>
+<span class="sd">    http://matplotlib.org/users/legend_guide.html</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="add_legend"><a class="viewcode-back" href="../../visclaw/visclaw.html#visclaw.legend_tools.add_legend">[docs]</a><span class="k">def</span> <span class="nf">add_legend</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span><span class="n">colors</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="n">linestyles</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span><span class="n">markers</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add a legend to an existing plot with a specified set of line colors.</span>
+<span class="sd">    Input:</span>
+<span class="sd">        labels:  list of labels</span>
+<span class="sd">        colors:  list of colors, of same length as labels</span>
+<span class="sd">            or a single string used for all entries.</span>
+<span class="sd">            Default is &#39;k&#39;, so all will be black.</span>
+<span class="sd">        linestyles: list of strings of same length as labels, </span>
+<span class="sd">            or a single string used for all entries.</span>
+<span class="sd">            Default is &#39;-&#39;, so all will be solid lines. </span>
+<span class="sd">            Set to &#39;&#39; for no line.</span>
+<span class="sd">        markers: list of strings of same length as labels,  </span>
+<span class="sd">            or a single string used for all entries.</span>
+<span class="sd">            Default is &#39;&#39;, so no marker for any entry</span>
+<span class="sd">        kwargs: keyword arguments to be passed to `plt.legend`, e.g.</span>
+<span class="sd">            `loc` or `fontsize`.</span>
+<span class="sd">    There is one entry in the legend for each color/label.</span>
+<span class="sd">    </span>
+<span class="sd">    Useful for annotating an AMR plot when plots were made</span>
+<span class="sd">    by looping over patches.  In this case it&#39;s not possible to simply add</span>
+<span class="sd">    a label as a kwarg to the plot command or the legend will contain an</span>
+<span class="sd">    entry for every patch.    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="k">as</span> <span class="nn">mlines</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+    
+    <span class="c1"># convert single string to list of correct length:</span>
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">colors</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">*</span><span class="p">[</span><span class="n">colors</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">linestyles</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">linestyles</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">*</span><span class="p">[</span><span class="n">linestyles</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">markers</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">markers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">*</span><span class="p">[</span><span class="n">markers</span><span class="p">]</span>
+            
+    <span class="n">handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)):</span>
+          <span class="n">handle</span> <span class="o">=</span> <span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> 
+                    <span class="n">linestyle</span><span class="o">=</span><span class="n">linestyles</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="n">markers</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> 
+                    <span class="n">label</span><span class="o">=</span><span class="n">labels</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+          <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+              
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">ClawPack 4.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.5.
+    </div>
+  </body>
+</html>
