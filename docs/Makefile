@@ -49,6 +49,14 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 
+post-build:
+	@echo "Cleaning up temporary files"
+	rm -rf ../*/*/*/*/*/*/__pycache__
+	rm -rf ../*/*/*/*/*/__pycache__
+	rm -rf ../*/*/*/*/__pycache__
+	rm -rf ../*/*/*/__pycache__
+	rm -rf ../*/*/__pycache__
+
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
