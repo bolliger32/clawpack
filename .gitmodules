@@ -12,7 +12,7 @@
 	url = https://github.com/clawpack/riemann.git
 [submodule "amrclaw"]
 	path = amrclaw
-	url = https://github.com/clawpack/amrclaw.git
+	url = https://github.com/ClimateImpactLab/amrclaw.git
 [submodule "geoclaw"]
 	path = geoclaw
 	url = https://github.com/ClimateImpactLab/geoclaw.git
