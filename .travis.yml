@@ -11,7 +11,8 @@ env:
   matrix:
     - DOCKER_ORG=climateimpactlab
       IMAGE_NAME=clawpack-image
-      SOURCE_IMAGE=rhodium/worker:91e8177fe0db3a60b343ff01a5deb699bcb6eb2a
+      SOURCE_IMAGE=rhodium/worker:v0.2.5
+      SOURCE_IMAGE_NEW=rhodium/worker:91e8177fe0db3a60b343ff01a5deb699bcb6eb2a
 
 notifications:
   email: false
@@ -19,27 +20,30 @@ notifications:
 install:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - docker build --build-arg SOURCE_IMAGE=$SOURCE_IMAGE -t $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT .
+  - docker build --build-arg SOURCE_IMAGE=$SOURCE_IMAGE_NEW -t $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new .
 
 script:
   - docker run -t $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT /usr/bin/env bash /clawpack/run_tests.sh
+  - docker run -t $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new /usr/bin/env bash /clawpack/run_tests_new.sh
   - docker push "$DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT"
+  - docker push "$DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new"
 
 deploy:
   - provider: script
-    script: docker tag $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_BRANCH && docker push "$DOCKER_ORG/$IMAGE_NAME:$TRAVIS_BRANCH"
+    script: docker tag $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_BRANCH && docker push "$DOCKER_ORG/$IMAGE_NAME:$TRAVIS_BRANCH" && docker tag $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_BRANCH}-new && docker push "$DOCKER_ORG/$IMAGE_NAME:${TRAVIS_BRANCH}-new"
     skip_cleanup: true
     on:
       all_branches: true
       condition: $TRAVIS_BRANCH != master
 
   - provider: script
-    script: docker tag $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT $DOCKER_ORG/$IMAGE_NAME:latest && docker push "$DOCKER_ORG/$IMAGE_NAME:latest"
+    script: docker tag $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT $DOCKER_ORG/$IMAGE_NAME:latest && docker push "$DOCKER_ORG/$IMAGE_NAME:latest" && docker tag $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new $DOCKER_ORG/$IMAGE_NAME:latest-new && docker push "$DOCKER_ORG/$IMAGE_NAME:latest-new"
     skip_cleanup: true
     on:
       branch: master
 
   - provider: script
-    script: docker tag $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_TAG && docker push "$DOCKER_ORG/$IMAGE_NAME:$TRAVIS_TAG"
+    script: docker tag $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_TAG && docker push "$DOCKER_ORG/$IMAGE_NAME:$TRAVIS_TAG" && docker tag $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_TAG}-new && docker push "$DOCKER_ORG/$IMAGE_NAME:${TRAVIS_TAG}-new"
     skip_cleanup: true
     on:
       tags: true
