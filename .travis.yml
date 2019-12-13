@@ -11,20 +11,20 @@ env:
   matrix:
     - DOCKER_ORG=climateimpactlab
       IMAGE_NAME=clawpack-image
-      SOURCE_IMAGE=rhodium/worker:v0.2.5
-      SOURCE_IMAGE_NEW=rhodium/worker:91e8177fe0db3a60b343ff01a5deb699bcb6eb2a
+      CURRENT_SOURCE_IMAGE=rhodium/worker:v0.2.5
+      CURRENT_SOURCE_IMAGE_NEW=rhodium/worker:91e8177fe0db3a60b343ff01a5deb699bcb6eb2a
 
 notifications:
   email: false
 
 install:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-  - docker build --build-arg SOURCE_IMAGE=$SOURCE_IMAGE -t $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT .
-  - docker build --build-arg SOURCE_IMAGE=$SOURCE_IMAGE_NEW -t $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new .
+  - docker build --build-arg SOURCE_IMAGE=$CURRENT_SOURCE_IMAGE -t $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT .
+  - docker build --build-arg SOURCE_IMAGE=$CURRENT_SOURCE_IMAGE_NEW -t $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new .
 
 script:
   - docker run -t $DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT /usr/bin/env bash /clawpack/run_tests.sh
-  - docker run -t $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new /usr/bin/env bash /clawpack/run_tests_new.sh
+  - docker run -t $DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new /usr/bin/env bash /clawpack/run_tests.sh
   - docker push "$DOCKER_ORG/$IMAGE_NAME:$TRAVIS_COMMIT"
   - docker push "$DOCKER_ORG/$IMAGE_NAME:${TRAVIS_COMMIT}-new"
 

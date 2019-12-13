@@ -27,8 +27,8 @@ WORKDIR /clawpack
 
 ## currently pinning rhg_compute_tools until latest worker image version has
 ## more current version
-RUN source activate worker && \
-  pip install --upgrade pip && \
+RUN if [[ -d /opt/conda/envs/worker ]]; then source activate worker; fi;
+RUN pip install --upgrade pip && \
   pip install -e . && \
   pip install --upgrade \
       matplotlib==3.0.3 \
