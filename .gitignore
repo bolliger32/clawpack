@@ -19,6 +19,8 @@ _plots/
 *.xyz
 scratch/*
 !scratch/README.txt
+clawpack/version.py
+*.egg-info
 
 # log files
 *.log
@@ -28,3 +30,6 @@ __pycache__
 
 # ipython
 .ipynb_checkpoints
+
+# macOS
+*.DS_Store

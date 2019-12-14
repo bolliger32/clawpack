@@ -2,47 +2,37 @@
 ARG SOURCE_IMAGE=$SOURCE_IMAGE
 FROM $SOURCE_IMAGE
 
-RUN apt-get update -qq && \
-    apt-get install -y \
-        liblapack-pic \
-        liblapack-dev \
-        libproj-dev \
-        proj-data \
-        proj-bin \
-        libgeos-dev && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 COPY . /clawpack
 
 ## install Clawpack
 ENV CLAW=/clawpack
-ENV NETCDF4_DIR=/usr/local
+ENV NETCDF4_DIR=/opt/conda
 ENV FC=gfortran
 ENV MPLBACKEND=Agg
+
+# this is needed to find libraries when building geoclaw (particularly lapack)
+ENV LIB_PATHS=/opt/conda/lib
+
+WORKDIR /clawpack
 
 # need to change shell in order for source command to work
 SHELL ["/bin/bash", "-c"]
 
-WORKDIR /clawpack
+RUN conda update -n base conda
 
-## currently pinning rhg_compute_tools until latest worker image version has
-## more current version
 RUN if [[ -d /opt/conda/envs/worker ]]; then source activate worker; fi;
-RUN pip install --upgrade pip && \
-  pip install -e . && \
-  pip install --upgrade \
-      matplotlib==3.0.3 \
-      yolk3k \
-      git+https://github.com/maritimeplanning/pytides.git@master \
-      rhg_compute_tools>=0.1.6 \
-      --no-cache-dir
+
+# install clawpack
+RUN pip install -e .
+
+# install pytides
+RUN source activate worker && \
+  pip install git+https://github.com/maritimeplanning/pytides.git@master \
+    --no-cache-dir
+
+# install nose
+RUN conda install -yc conda-forge nose
 
 WORKDIR /
 
-# super sketchy hack to get around our need for compiler_compat binaries and some
-# other things that cause problems together?
-# see https://github.com/ContinuumIO/anaconda-issues/issues/11152
-RUN rm -f /opt/conda/compiler_compat/ld
-RUN rm -f /opt/conda/envs/worker/compiler_compat/ld
-
-ENTRYPOINT ["/usr/local/bin/dumb-init", "/usr/bin/prepare.sh"]
+ENTRYPOINT ["tini", "--", "/usr/bin/prepare.sh"]
