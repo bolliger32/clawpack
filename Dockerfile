@@ -15,20 +15,12 @@ ENV LIB_PATHS=/opt/conda/lib
 
 WORKDIR /clawpack
 
-# need to change shell in order for source command to work
-SHELL ["/bin/bash", "-c"]
-
-RUN conda update -n base conda
-
-RUN if [[ -d /opt/conda/envs/worker ]]; then source activate worker; fi;
-
 # install clawpack
 RUN pip install -e .
 
 # install pytides
-RUN source activate worker && \
-  pip install git+https://github.com/maritimeplanning/pytides.git@master \
-    --no-cache-dir
+RUN pip install git+https://github.com/maritimeplanning/pytides.git@master \
+      --no-cache-dir
 
 # install nose
 RUN conda install -yc conda-forge nose
