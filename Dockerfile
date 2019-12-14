@@ -14,6 +14,8 @@ ENV MPLBACKEND=Agg
 ENV LIB_PATHS=/opt/conda/lib
 
 WORKDIR /clawpack
+RUN rm -f /opt/conda/compiler_compat/ld
+ENV NPY_DISTUTILS_APPEND_FLAGS=1
 
 # install clawpack
 RUN pip install -e .
