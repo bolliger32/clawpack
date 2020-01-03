@@ -21,7 +21,7 @@ WORKDIR /clawpack
 ##
 # This duplicated from RhodiumGroup/docker_images:common.sh because the files seem
 # to be re-introduced by conda commands
-rm -rf /opt/conda/compiler_compat/ld
+RUN rm -rf /opt/conda/compiler_compat/ld
 
 # install clawpack
 RUN pip install -e .
